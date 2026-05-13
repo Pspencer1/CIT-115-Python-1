@@ -1,0 +1,78 @@
+# EMPLOYEE DATABASE PROGRAM 
+
+import sqlite3
+import os
+
+# CONNECT DATABASE
+
+conn = sqlite3.connect("employee.db")
+cursor = conn.cursor()
+
+# CREATE TABLE
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS employees (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    age INTEGER,
+    department TEXT,
+    salary REAL
+)
+""")
+
+conn.commit()
+
+# CREATE Employee.txt IF NOT FOUND
+
+if not os.path.exists("Employee.txt"):
+
+    sample_data = """1,John,25,HR,35000
+2,Alice,30,IT,50000
+3,Bob,28,Finance,45000
+4,Emma,35,Marketing,55000
+"""
+
+    with open("Employee.txt", "w") as file:
+        file.write(sample_data)
+
+    print("Employee.txt created successfully.")
+
+# READ FILE
+
+with open("Employee.txt", "r") as file:
+
+    for line in file:
+
+        data = line.strip().split(",")
+
+        emp_id = int(data[0])
+        name = data[1]
+        age = int(data[2])
+        department = data[3]
+        salary = float(data[4])
+
+        # PUT DATA
+        cursor.execute("""
+        INSERT OR REPLACE INTO employees
+        (id, name, age, department, salary)
+        VALUES (?, ?, ?, ?, ?)
+        """, (emp_id, name, age, department, salary))
+
+conn.commit()
+
+# SHOW DATA
+
+print("\nEmployee Records:\n")
+
+cursor.execute("SELECT * FROM employees")
+
+records = cursor.fetchall()
+
+for row in records:
+    print(row)
+
+# DONE DATABASE
+
+conn.close()
+
+print("\nProgram finished.")
